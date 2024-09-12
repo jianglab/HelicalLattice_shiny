@@ -108,29 +108,28 @@ def server(input, output, session):
         if input.radio() == "2D⇒Helical":
             col2 = ui.column(4,
                 ui.h3("2D Lattice: from which a block of area is selected to be rolled into a helix"),
-                # ui.output_plot("plot_2d")
+                output_widget("plot_2d_2D_to_Helical") #not loading
             )
             col3 = ui.column(4,
                 ui.h3("2D Lattice: selected area is ready to be rolled into a helix around the vertical axis"),
-                # ui.output_plot("plot_helix_unrolled")
+                output_widget("plot_helix_unrolled_2D_to_Helical") #loading incorrect graph
             )
             col4 = ui.column(4,
                 ui.h3("Helical Lattice: rolled up from the starting 2D lattice"),
-                #ui.output_plot("plot_helix")
+                output_widget("plot_helix_2D_to_Helical") #not loading
             )
         else:
             col2 = ui.column(4,
                 ui.h3("Helical Lattice"),
-                #ui.output_plot("plot_helix")
                 output_widget("plot_helix")
             )
             col3 = ui.column(4,
                 ui.h3("Helical Lattice: unrolled into a 2D lattice"),
-                # ui.output_plot("plot_helix_unrolled")
+                output_widget("plot_helix_unrolled")
             )
             col4 = ui.column(4,
                 ui.h3("2D Lattice: from which the helix was built"),
-                # ui.output_plot("plot_2d")
+                output_widget("plot_2d") # not loading
             )
 
         return ui.TagList(ui.row(col2, col3, col4))
@@ -145,15 +144,98 @@ def server(input, output, session):
         csym = input.csym()
         marker_size = input.marker_size()
         figure_height = input.figure_height()
-        """text here"""
         fig = plot_helical_lattice(diameter, length, twist, rise, csym, marker_size=marker_size*0.6, figure_height=figure_height)
-        """also here"""
-        
         return fig
+    
+    @output
+    @render_widget
+    def plot_helix_unrolled():
+        diameter = input.diameter()
+        length = input.length()
+        twist = input.twist()
+        rise = input.rise()
+        csym = input.csym()
+        marker_size = input.marker_size()
+        figure_height = input.figure_height()
+        fig = plot_helical_lattice_unrolled(diameter, length, twist, rise, csym, marker_size=marker_size, figure_height=figure_height)
+        return fig
+    
+    @output
+    @render_widget
+    def plot_2d():
+      a, b, endpoint = convert_helical_lattice_to_2d_lattice(
+          twist=input.twist(),
+          rise=input.rise(),
+          csym=input.csym(),
+          diameter=input.diameter(),
+          primitive_unitcell=input.primitive_unitcell(),
+          horizontal=input.horizontal()
+      )
+      length = input.length()
+      lattice_size_factor = input.lattice_size_factor()
+      marker_size = input.marker_size()
+      figure_height = input.figure_height()
+      fig = plot_2d_lattice(a, b, endpoint, length=length, lattice_size_factor=lattice_size_factor, marker_size=marker_size, figure_height=figure_height)
+      return fig
+    
+    @output
+    @render_widget
+    def plot_2d_2D_to_Helical():
+      na = input.na()
+      nb = input.nb()  # Fixed: was input.na()
+      ax = input.ax()
+      ay = input.ay()
+      bx = input.bx()
+      by = input.by()
+      a = (ax, ay)
+      b = (bx, by)
+      length = input.length()
+      lattice_size_factor = input.lattice_size_factor()
+      marker_size = input.marker_size()
+      figure_height = input.figure_height()
+      fig = plot_2d_lattice(a, b, endpoint=(na, nb), length=length, lattice_size_factor=lattice_size_factor, marker_size=marker_size, figure_height=figure_height)
+      return fig
+
+    @output
+    @render_widget
+    def plot_helix_unrolled_2D_to_Helical():
+      na = input.na()
+      nb = input.nb()  # Fixed: was input.na()
+      ax = input.ax()
+      ay = input.ay()
+      bx = input.bx()
+      by = input.by()
+      a = (ax, ay)
+      b = (bx, by)
+      twist2, rise2, csym2, diameter2 = convert_2d_lattice_to_helical_lattice(a=a, b=b, endpoint=(na, nb))
+
+      length = input.length()
+      marker_size = input.marker_size()
+      figure_height = input.figure_height()
+      fig = plot_helical_lattice_unrolled(diameter2, length, twist2, rise2, csym2, marker_size=marker_size, figure_height=figure_height)
+      return fig
+
+    @output
+    @render_widget
+    def plot_helix_2D_to_Helical():
+        na = input.na()
+        nb = input.nb()  # Fixed: was input.na()
+        ax = input.ax()
+        ay = input.ay()
+        bx = input.bx()
+        by = input.by()
+        a = (ax, ay)
+        b = (bx, by)
+        twist2, rise2, csym2, diameter2 = convert_2d_lattice_to_helical_lattice(a=a, b=b, endpoint=(na, nb))
+        length = input.length()
+        marker_size = input.marker_size()
+        figure_height = input.figure_height()
+        fig = plot_helical_lattice(diameter2, length, twist2, rise2, csym2, marker_size=marker_size*0.6, figure_height=figure_height)
+        return fig
+
 
 # Run the app
 app = App(app_ui, server)
-
 
 def plot_2d_lattice(a=(1, 0), b=(0, 1), endpoint=(10, 0), length=10, lattice_size_factor=1.25, marker_size=10, figure_height=500):
   a = np.array(a)
