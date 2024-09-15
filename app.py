@@ -23,54 +23,60 @@ from shinywidgets import output_widget, render_widget
 app_ui = ui.page_fluid(
     ui.layout_sidebar(
         ui.sidebar(
-            ui.input_action_button("readme_btn", "Read Me"),
+            ui.accordion(
+                ui.accordion_panel(
+                    "README", 
+                    ui.p("HelicalLattice is a Web app that helps the user to understand how a helical lattice and its underlying 2D lattice can interconvert. "
+                         "The user can specify any 2D lattice and choose a line segment connecting any pair of lattice points that defines the block of 2D lattice to be rolled up into a helical lattice."),
+                    value="readme_panel",
+                    open=False
+                ),
+                id="sidebar_accordion"
+            ),
             ui.input_radio_buttons("radio", "", ["Helical⇒2D", "2D⇒Helical"]),
-            ui.output_ui("conditional_inputs"),  # Placeholder for conditional inputs
+            ui.output_ui("conditional_inputs"), 
             ui.input_checkbox("share_url", "Show sharable URL", value=False),
             ui.markdown("*Developed by the [Jiang Lab@Purdue University](https://jiang.bio.purdue.edu). Report problems to Wen Jiang (jiang12 at purdue.edu)*"),
             id="sidebar_always", open="always"
         ),
         ui.row(
-            ui.column(12,  # Full-width column for the title
+            ui.column(12,  
                 ui.div(
                     ui.h2("HelicalLattice: 2D Lattice ⇔ Helical Lattice"),
                     style="text-align: center; margin-bottom: 20px;"
                 )
             ),
-            ui.column(4,  # First column (4 out of 12 grid units)
+            ui.column(4,
                 ui.div(
                     style="text-align: center; margin-top: 20px;"
                 ),
             ),
-            ui.column(4,  # Second column (4 out of 12 grid units)
+            ui.column(4, 
                 ui.div(
                     style="text-align: center; margin-top: 20px;"
                 ),
             ),
-            ui.column(4,  # Third column (4 out of 12 grid units)
+            ui.column(4,
                 ui.div(
                     style="text-align: center; margin-top: 20px;"
                 ),
             ),
         ),
-        ui.output_ui("dynamic_plot")  # Placeholder for the dynamic plot UI
+        ui.output_ui("dynamic_plot")  
     )
 )
 
 def server(input, output, session):
-    # Output example to test input.sidebar_always()
     @output
     @render.text
     def state_always():
         return f"testing here input.sidebar_always(): {input.sidebar_always()}"
 
-    # Show Read Me notification
     @reactive.Effect
     @reactive.event(input.readme_btn)
     def show_readme_info():
         ui.notification_show("HelicalLattice is a Web app that helps the user to understand how a helical lattice and its underlying 2D lattice can interconvert. The user can specify any 2D lattice and choose a line segment connecting any pair of lattice points that defines the block of 2D lattice to be rolled up into a helical lattice")
 
-    # Conditionally render UI inputs based on radio button selection
     @output
     @render.ui
     def conditional_inputs():
@@ -101,22 +107,21 @@ def server(input, output, session):
                 ui.input_numeric("figure_height", "Plot height (pixels)", value=800, min=1, step=10),
             )
 
-    # Dynamically adjust plots based on radio button input
     @output
     @render.ui
     def dynamic_plot():
         if input.radio() == "2D⇒Helical":
             col2 = ui.column(4,
                 ui.h3("2D Lattice: from which a block of area is selected to be rolled into a helix"),
-                output_widget("plot_2d_2D_to_Helical") #not loading
+                output_widget("plot_2d_2D_to_Helical")
             )
             col3 = ui.column(4,
                 ui.h3("2D Lattice: selected area is ready to be rolled into a helix around the vertical axis"),
-                output_widget("plot_helix_unrolled_2D_to_Helical") #loading incorrect graph
+                output_widget("plot_helix_unrolled_2D_to_Helical")
             )
             col4 = ui.column(4,
                 ui.h3("Helical Lattice: rolled up from the starting 2D lattice"),
-                output_widget("plot_helix_2D_to_Helical") #not loading
+                output_widget("plot_helix_2D_to_Helical") 
             )
         else:
             col2 = ui.column(4,
@@ -129,7 +134,7 @@ def server(input, output, session):
             )
             col4 = ui.column(4,
                 ui.h3("2D Lattice: from which the helix was built"),
-                output_widget("plot_2d") # not loading
+                output_widget("plot_2d")
             )
 
         return ui.TagList(ui.row(col2, col3, col4))
@@ -182,7 +187,7 @@ def server(input, output, session):
     @render_widget
     def plot_2d_2D_to_Helical():
       na = input.na()
-      nb = input.nb()  # Fixed: was input.na()
+      nb = input.nb()
       ax = input.ax()
       ay = input.ay()
       bx = input.bx()
@@ -219,7 +224,7 @@ def server(input, output, session):
     @render_widget
     def plot_helix_2D_to_Helical():
         na = input.na()
-        nb = input.nb()  # Fixed: was input.na()
+        nb = input.nb()
         ax = input.ax()
         ay = input.ay()
         bx = input.bx()
