@@ -19,6 +19,9 @@ from shiny import session
 import plotly.graph_objects as go
 from shinywidgets import output_widget, render_widget
 
+from urllib.parse import urlencode, parse_qs
+from shiny import reactive
+
 
 app_ui = ui.page_fluid(
     ui.layout_sidebar(
@@ -65,6 +68,7 @@ app_ui = ui.page_fluid(
         ui.output_ui("dynamic_plot")  
     )
 )
+    
 
 def server(input, output, session):
     @output
@@ -241,6 +245,24 @@ def server(input, output, session):
 
 # Run the app
 app = App(app_ui, server)
+
+ui.head_content(
+    ui.HTML(
+        """
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CTBKF6J4CG"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-CTBKF6J4CG');
+        </script>
+        """
+    )
+)
+
+ui.head_content(ui.tags.title("Helical Lattice"))
+
 
 def plot_2d_lattice(a=(1, 0), b=(0, 1), endpoint=(10, 0), length=10, lattice_size_factor=1.25, marker_size=10, figure_height=500):
   a = np.array(a)
@@ -678,5 +700,6 @@ def convert_helical_lattice_to_2d_lattice(twist=30, rise=20, csym=1, diameter=10
     va = np.array([np.linalg.norm(va), 0.0])
 
   return va, vb, endpoint
+
 
 
