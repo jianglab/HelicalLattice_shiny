@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import shiny
+import shinylive
 import plotly
 import plotly.express as px
 from shinywidgets import render_widget
@@ -700,6 +701,3 @@ def convert_helical_lattice_to_2d_lattice(twist=30, rise=20, csym=1, diameter=10
     va = np.array([np.linalg.norm(va), 0.0])
 
   return va, vb, endpoint
-
-
-
