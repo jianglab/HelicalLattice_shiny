@@ -23,19 +23,18 @@ from shinywidgets import output_widget, render_widget
 from urllib.parse import urlencode, parse_qs
 from shiny import reactive
 
-
 app_ui = ui.page_fluid(
     ui.layout_sidebar(
         ui.sidebar(
             ui.accordion(
                 ui.accordion_panel(
-                    "README", 
+                    "README",
                     ui.p("HelicalLattice is a Web app that helps the user to understand how a helical lattice and its underlying 2D lattice can interconvert. "
                          "The user can specify any 2D lattice and choose a line segment connecting any pair of lattice points that defines the block of 2D lattice to be rolled up into a helical lattice."),
-                    value="readme_panel",
-                    open=False
+                    value="readme_panel"
                 ),
-                id="sidebar_accordion"
+                id="sidebar_accordion",
+                open=[]  # Ensure no panel is open by default
             ),
             ui.input_radio_buttons("radio", "", ["Helical⇒2D", "2D⇒Helical"]),
             ui.output_ui("conditional_inputs"), 
@@ -67,16 +66,24 @@ app_ui = ui.page_fluid(
             ),
         ),
         ui.output_ui("dynamic_plot")  
-    )
+    ),
+    ui.tags.script("""
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure the README panel is collapsed on page load
+            var accordion = document.getElementById('sidebar_accordion');
+            if (accordion) {
+                var panels = accordion.querySelectorAll('.accordion-collapse');
+                panels.forEach(panel => {
+                    panel.classList.remove('show');
+                });
+            }
+        });
+    """)
 )
-    
+
 
 def server(input, output, session):
-    @output
-    @render.text
-    def state_always():
-        return f"testing here input.sidebar_always(): {input.sidebar_always()}"
-
+    
     @reactive.Effect
     @reactive.event(input.readme_btn)
     def show_readme_info():
