@@ -23,6 +23,7 @@ from shinywidgets import output_widget, render_widget
 from urllib.parse import urlencode, parse_qs
 from shiny import reactive
 
+
 app_ui = ui.page_fluid(
     ui.layout_sidebar(
         ui.sidebar(
@@ -40,7 +41,6 @@ app_ui = ui.page_fluid(
             ui.output_ui("conditional_inputs"), 
             ui.input_checkbox("share_url", "Show sharable URL", value=False),
             ui.markdown("*Developed by the [Jiang Lab@Purdue University](https://jiang.bio.purdue.edu). Report problems to Wen Jiang (jiang12 at purdue.edu)*"),
-            id="sidebar_always", open="always"
         ),
         ui.row(
             ui.column(12,  
@@ -80,7 +80,6 @@ app_ui = ui.page_fluid(
         });
     """)
 )
-
 
 def server(input, output, session):
     
@@ -250,6 +249,8 @@ def server(input, output, session):
         fig = plot_helical_lattice(diameter2, length, twist2, rise2, csym2, marker_size=marker_size*0.6, figure_height=figure_height)
         return fig
 
+
+    
 
 # Run the app
 app = App(app_ui, server)
