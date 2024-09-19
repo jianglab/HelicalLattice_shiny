@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import shiny
-import shinylive
 import plotly
 import plotly.express as px
 from shinywidgets import render_widget
