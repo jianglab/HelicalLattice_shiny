@@ -1,12 +1,9 @@
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import shiny
 import plotly
-import plotly.express as px
 from shinywidgets import render_widget
-from shiny import App, Inputs, Outputs, Session, render, ui
 from shiny.ui import div, HTML
 
 import plotly.express as px
