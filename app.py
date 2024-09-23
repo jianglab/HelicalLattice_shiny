@@ -12,20 +12,12 @@ from shiny.ui import div, HTML
 import plotly.express as px
 from shinywidgets import render_plotly
 
-from shiny import App, Inputs, Outputs, Session, reactive, render, ui
-from shiny.types import ImgData
-from shiny import session
-
 import plotly.graph_objects as go
-from shinywidgets import output_widget, render_widget
-
-from urllib.parse import urlencode, parse_qs
 from shiny import reactive
 
 from shiny import App, Inputs, Outputs, Session, reactive, render, ui
 from shiny.types import ImgData
 from shiny import session
-import plotly.graph_objects as go
 from shinywidgets import output_widget, render_widget
 from urllib.parse import urlencode, parse_qs
 
