@@ -22,6 +22,37 @@ from shinywidgets import output_widget, render_widget
 from urllib.parse import urlencode, parse_qs
 from shiny import reactive
 
+from shiny import App, Inputs, Outputs, Session, reactive, render, ui
+from shiny.types import ImgData
+from shiny import session
+import plotly.graph_objects as go
+from shinywidgets import output_widget, render_widget
+from urllib.parse import urlencode, parse_qs
+
+def get_client_url(input):
+    d = input._map
+    url = f"{d['.clientdata_url_protocol']()}//{d['.clientdata_url_hostname']()}:{d['.clientdata_url_port']()}{d['.clientdata_url_pathname']()}{d['.clientdata_url_search']()}"
+    return url
+
+def get_client_url_query_params(input):
+    d = input._map
+    qs = d['.clientdata_url_search']().strip("?")
+    parsed_qs = parse_qs(qs)
+    return parsed_qs
+
+def set_client_url_query_params(query_params):
+    encoded_query_params = urlencode(query_params, doseq=True)
+    script = ui.tags.script(
+        f"""
+        var url = new URL(window.location.href);
+        url.search = '{encoded_query_params}';
+        window.history.pushState(null, '', url.toString());
+        """
+    )
+    return script
+
+
+
 
 app_ui = ui.page_fluid(
     ui.layout_sidebar(
@@ -38,7 +69,9 @@ app_ui = ui.page_fluid(
             ),
             ui.input_radio_buttons("radio", "", ["Helical⇒2D", "2D⇒Helical"]),
             ui.output_ui("conditional_inputs"), 
-            ui.input_checkbox("share_url", "Show sharable URL", value=False),
+            ui.input_checkbox("share_url", "Show/Reload sharable URL", value=False),
+            ui.input_action_button("button", "Get URL Below"),
+            ui.output_ui("display_client_url"), 
             ui.markdown("*Developed by the [Jiang Lab@Purdue University](https://jiang.bio.purdue.edu). Report problems to Wen Jiang (jiang12 at purdue.edu)*"),
         ),
         ui.row(
@@ -88,6 +121,80 @@ def server(input, output, session):
         ui.notification_show("HelicalLattice is a Web app that helps the user to understand how a helical lattice and its underlying 2D lattice can interconvert. The user can specify any 2D lattice and choose a line segment connecting any pair of lattice points that defines the block of 2D lattice to be rolled up into a helical lattice")
         print(input.__dict__['_map']['.clientdata_url_search']())"""
    
+    @reactive.Effect
+    @reactive.event(input.radio, input.share_url)
+    def update_url():
+        params = {}
+        if input.share_url():
+            params["mode"] = input.radio()
+            if input.radio() == "Helical⇒2D":
+                params.update({
+                    "twist": input.twist(),
+                    "rise": input.rise(),
+                    "csym": input.csym(),
+                    "diameter": input.diameter(),
+                    "length": input.length(),
+                    "primitive_unitcell": input.primitive_unitcell(),
+                    "horizontal": input.horizontal(),
+                    "lattice_size_factor": input.lattice_size_factor(),
+                    "marker_size": input.marker_size(),
+                    "figure_height": input.figure_height()
+                })
+            elif input.radio() == "2D⇒Helical":
+                params.update({
+                    "ax": input.ax(),
+                    "ay": input.ay(),
+                    "bx": input.bx(),
+                    "by": input.by(),
+                    "na": input.na(),
+                    "nb": input.nb(),
+                    "length": input.length(),
+                    "lattice_size_factor": input.lattice_size_factor(),
+                    "marker_size": input.marker_size(),
+                    "figure_height": input.figure_height()
+                })
+        script = set_client_url_query_params(query_params=params)
+        ui.insert_ui(ui.tags.div(script), selector="body", where="beforeEnd")
+
+    @reactive.Effect
+    def _():
+        query_params = get_client_url_query_params(input)
+        if "mode" in query_params:
+            mode = query_params["mode"][0]
+            ui.update_radio_buttons("radio", selected=mode)
+            
+            if mode == "Helical⇒2D":
+                ui.update_numeric("twist", value=float(query_params.get("twist", ["-81.1"])[0]))
+                ui.update_numeric("rise", value=float(query_params.get("rise", ["19.4"])[0]))
+                ui.update_numeric("csym", value=int(query_params.get("csym", ["1"])[0]))
+                ui.update_numeric("diameter", value=float(query_params.get("diameter", ["290.0"])[0]))
+                ui.update_numeric("length", value=float(query_params.get("length", ["1000.0"])[0]))
+                ui.update_checkbox("primitive_unitcell", value=query_params.get("primitive_unitcell", ["False"])[0] == "True")
+                ui.update_checkbox("horizontal", value=query_params.get("horizontal", ["True"])[0] == "True")
+                ui.update_numeric("lattice_size_factor", value=float(query_params.get("lattice_size_factor", ["1.25"])[0]))
+                ui.update_numeric("marker_size", value=float(query_params.get("marker_size", ["5.0"])[0]))
+                ui.update_numeric("figure_height", value=int(query_params.get("figure_height", ["800"])[0]))
+            elif mode == "2D⇒Helical":
+                ui.update_numeric("ax", value=float(query_params.get("ax", ["34.65"])[0]))
+                ui.update_numeric("ay", value=float(query_params.get("ay", ["0.0"])[0]))
+                ui.update_numeric("bx", value=float(query_params.get("bx", ["10.63"])[0]))
+                ui.update_numeric("by", value=float(query_params.get("by", ["-23.01"])[0]))
+                ui.update_numeric("na", value=int(query_params.get("na", ["16"])[0]))
+                ui.update_numeric("nb", value=int(query_params.get("nb", ["1"])[0]))
+                ui.update_numeric("length", value=float(query_params.get("length", ["1000.0"])[0]))
+                ui.update_numeric("lattice_size_factor", value=float(query_params.get("lattice_size_factor", ["1.25"])[0]))
+                ui.update_numeric("marker_size", value=float(query_params.get("marker_size", ["5.0"])[0]))
+                ui.update_numeric("figure_height", value=int(query_params.get("figure_height", ["800"])[0]))
+
+    @render.ui
+    @reactive.event(input.button)
+    def display_client_url():
+      url = get_client_url(input=input)
+      return ui.markdown(f"{url=}")
+
+
+
+
     @output
     @render.ui
     def conditional_inputs():
