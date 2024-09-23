@@ -82,14 +82,16 @@ app_ui = ui.page_fluid(
 
 def server(input, output, session):
     
-    @reactive.Effect
+    """@reactive.Effect
     @reactive.event(input.readme_btn)
     def show_readme_info():
         ui.notification_show("HelicalLattice is a Web app that helps the user to understand how a helical lattice and its underlying 2D lattice can interconvert. The user can specify any 2D lattice and choose a line segment connecting any pair of lattice points that defines the block of 2D lattice to be rolled up into a helical lattice")
-
+        print(input.__dict__['_map']['.clientdata_url_search']())"""
+   
     @output
     @render.ui
     def conditional_inputs():
+        print(input.__dict__['_map']['.clientdata_url_search']())
         if input.radio() == "Helical⇒2D":
             return ui.TagList(
                 ui.input_numeric('twist', 'Twist (°)', value=-81.1, min=-180., max=180., step=1.0),
