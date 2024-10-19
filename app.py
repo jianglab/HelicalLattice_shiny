@@ -58,9 +58,9 @@ app_ui = ui.page_fluid(
             ),
             ui.input_radio_buttons("radio", "", ["Helical⇒2D", "2D⇒Helical"]),
             ui.output_ui("conditional_inputs"), 
-            ui.input_checkbox("share_url", "Show/Reload sharable URL", value=False),
-            ui.input_action_button("button", "Get URL Below"),
-            ui.output_ui("display_client_url"), 
+            #ui.input_checkbox("share_url", "Show/Reload sharable URL", value=False),
+            #ui.input_action_button("button", "Get URL Below"),
+            #ui.output_ui("display_client_url"), 
             ui.markdown("*Developed by the [Jiang Lab@Purdue University](https://jiang.bio.purdue.edu). Report problems to Wen Jiang (jiang12 at purdue.edu)*"),
         ),
         ui.row(
@@ -110,10 +110,13 @@ def server(input, output, session):
         ui.notification_show("HelicalLattice is a Web app that helps the user to understand how a helical lattice and its underlying 2D lattice can interconvert. The user can specify any 2D lattice and choose a line segment connecting any pair of lattice points that defines the block of 2D lattice to be rolled up into a helical lattice")
         print(input.__dict__['_map']['.clientdata_url_search']())"""
    
-    @reactive.Effect
-    @reactive.event(input.radio, input.share_url)
+   # TODO: add all input values into the event parameter
+   # TODO: figure out how to run this through terminal only
+    """@reactive.Effect
+    @reactive.event(input.radio, input.share_url, input.button, input.twist, input.rise, input.csym, input.diameter, input.length, input.primitive_unitcell, input.horizontal, input.lattice_size_factor, input.marker_size, input.figure_height)
     def update_url():
         params = {}
+        ret = []
         if input.share_url():
             params["mode"] = input.radio()
             if input.radio() == "Helical⇒2D":
@@ -144,6 +147,10 @@ def server(input, output, session):
                 })
         script = set_client_url_query_params(query_params=params)
         ui.insert_ui(ui.tags.div(script), selector="body", where="beforeEnd")
+        #ret.append( script )
+        #return ret
+    """
+
 
     @reactive.Effect
     def _():
@@ -175,12 +182,12 @@ def server(input, output, session):
                 ui.update_numeric("marker_size", value=float(query_params.get("marker_size", ["5.0"])[0]))
                 ui.update_numeric("figure_height", value=int(query_params.get("figure_height", ["800"])[0]))
 
-    @render.ui
+    """@render.ui
     @reactive.event(input.button)
     def display_client_url():
       url = get_client_url(input=input)
       return ui.markdown(f"{url=}")
-
+    """
 
 
 
