@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import shiny
 import plotly
 from shinywidgets import render_widget
