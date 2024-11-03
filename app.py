@@ -62,7 +62,7 @@ app_ui = ui.page_fluid(
             #ui.output_ui("display_client_url"), 
             ui.HTML(
                 "<i><p>Developed by the <a href='https://jiang.bio.purdue.edu/HelicalLattice' target='_blank'>Jiang Lab</a>. Report issues to <a href='https://github.com/jianglab/HelicalLattice_shiny/issues' target='_blank'>HelicalLattice@GitHub</a>.</p></i>"
-            )
+            ),
             open='open'
         ),
         ui.row(
