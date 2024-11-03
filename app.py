@@ -60,13 +60,14 @@ app_ui = ui.page_fluid(
             #ui.input_checkbox("share_url", "Show/Reload sharable URL", value=False),
             #ui.input_action_button("button", "Get URL Below"),
             #ui.output_ui("display_client_url"), 
-            ui.markdown("*Developed by the [Jiang Lab@Purdue University](https://jiang.bio.purdue.edu). Report problems to Wen Jiang (jiang12 at purdue.edu)*"),
+            ui.HTML(
+                "<i><p>Developed by the <a href='https://jiang.bio.purdue.edu/HelicalLattice' target='_blank'>Jiang Lab</a>. Report issues to <a href='https://github.com/jianglab/HelicalLattice_shiny/issues' target='_blank'>HelicalLattice@GitHub</a>.</p></i>"
+            )
         ),
         ui.row(
             ui.column(12,  
                 ui.div(
-                    ui.h2("HelicalLattice: 2D Lattice ⇔ Helical Lattice"),
-                    style="text-align: center; margin-bottom: 20px;"
+                    ui.h2("HelicalLattice: 2D Lattice ⇔ Helical Lattice")
                 )
             ),
             ui.column(4,
@@ -98,7 +99,15 @@ app_ui = ui.page_fluid(
                 });
             }
         });
-    """)
+    """),
+    ui.tags.style(
+      """
+        * { font-size: 10pt; padding:0; border: 0; margin: 0; }
+        aside {--_padding-icon: 10px;}
+        h2 {text-align: center; margin-bottom: 20px; font-weight: bold;}
+        h3 {text-align: center;}
+      """
+    )
 )
 
 def server(input, output, session):
@@ -247,7 +256,7 @@ def server(input, output, session):
                 output_widget("plot_helix_unrolled")
             )
             col4 = ui.column(4,
-                ui.h3("2D Lattice: from which the helix was built"),
+                ui.h3("2D Lattice: from which the helix is built"),
                 output_widget("plot_2d")
             )
 
